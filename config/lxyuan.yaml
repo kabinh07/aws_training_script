@@ -1,0 +1,75 @@
+load_last_checkpoint: False
+
+model:
+  type: transformers.AutoModelForSequenceClassification.from_pretrained
+  pretrained_model_name_or_path : lxyuan/distilbert-base-multilingual-cased-sentiments-student
+  num_labels : 3
+
+tokenizer:
+  tokenizer_loader:
+    type: transformers.AutoTokenizer.from_pretrained
+    pretrained_model_name_or_path : lxyuan/distilbert-base-multilingual-cased-sentiments-student
+  tokenizer_parameters:
+    max_length : 512
+    padding : "max_length"
+    truncation : True
+    return_tensors : "pt"
+
+data_process:
+  dataset:
+    filepath_or_buffer : ./data/clean_data.csv
+  
+  splitter:
+    test_size : 0.1
+    random_state : 42
+
+dataloaders:
+  trainloader:
+    batch_size : 8
+    num_workers: 4
+    shuffle : True
+  
+  validloader:
+    batch_size : 8
+    num_workers: 4
+    shuffle : False
+
+trainer:
+  type : lightning.pytorch.Trainer
+  max_epochs: 20
+
+optimizer:
+  type: torch.optim.SGD
+
+logger:
+  type: lightning.pytorch.loggers.TensorBoardLogger
+  save_dir: ./loggers/
+  name: sentiment_logs
+
+callbacks:
+  early_stopping:
+    type: lightning.pytorch.callbacks.EarlyStopping
+    monitor: validation_loss
+    patience: 1
+
+  best_model_checkpoint:
+    type: lightning.pytorch.callbacks.ModelCheckpoint
+    filename: best_epoch_model
+    dirpath: ./best_checkpoint
+    monitor: validation_loss
+    save_top_k: 1
+    mode: min
+    enable_version_counter: False
+
+  model_checkpoint:
+    type: lightning.pytorch.callbacks.ModelCheckpoint
+    filename: last_epoch_model
+    dirpath: ./last_checkpoint
+    save_top_k: 1
+    mode: min
+    enable_version_counter: False
+tuner:
+  enable_tuner: True
+  lr_finder:
+    min_lr: 0.00000001
+    max_lr: 1
