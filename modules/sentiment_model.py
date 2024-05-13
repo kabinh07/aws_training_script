@@ -23,12 +23,10 @@ class SentimentModel(L.LightningModule):
     
     def setup(self, stage = 0):
         self.data = pd.read_csv(**self.data_process_config.dataset)
-        #small version; remove df from line 27 and chnage df with self.data in line 29 nad 31
-        df = self.data[:50]
         trainset, validset = train_test_split(
-            df,
+            self.data,
             **self.data_process_config.splitter, 
-            stratify= df['labels']
+            stratify= self.data['labels']
             )
         trainset.reset_index(drop = True, inplace = True)
         validset.reset_index(drop = True, inplace = True)
