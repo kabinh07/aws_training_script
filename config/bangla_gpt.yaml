@@ -2,13 +2,13 @@ load_last_checkpoint: False
 
 model:
   type: transformers.AutoModelForSequenceClassification.from_pretrained
-  pretrained_model_name_or_path : lxyuan/distilbert-base-multilingual-cased-sentiments-student
+  pretrained_model_name_or_path : flax-community/gpt2-bengali
   num_labels : 3
 
 tokenizer:
   tokenizer_loader:
     type: transformers.AutoTokenizer.from_pretrained
-    pretrained_model_name_or_path : lxyuan/distilbert-base-multilingual-cased-sentiments-student
+    pretrained_model_name_or_path : flax-community/gpt2-bengali
   tokenizer_parameters:
     max_length : 512
     padding : "max_length"
@@ -43,7 +43,7 @@ optimizer:
 
 logger:
   type: lightning.pytorch.loggers.TensorBoardLogger
-  save_dir: ./loggers/lxyuan/
+  save_dir: ./loggers/gpt2/
   name: sentiment_logs
 
 callbacks:
@@ -54,8 +54,8 @@ callbacks:
 
   best_model_checkpoint:
     type: lightning.pytorch.callbacks.ModelCheckpoint
-    filename: best_epoch_model
-    dirpath: ./best_checkpoint/lxyuan/
+    # filename: best_epoch_model
+    dirpath: ./best_checkpoint/gpt2/
     monitor: validation_loss
     save_top_k: 1
     mode: min
@@ -63,13 +63,13 @@ callbacks:
 
   model_checkpoint:
     type: lightning.pytorch.callbacks.ModelCheckpoint
-    filename: last_epoch_model
-    dirpath: ./last_checkpoint/lxyuan/
+    # filename: last_epoch_model
+    dirpath: ./last_checkpoint/gpt2/
     save_top_k: 1
     mode: min
     enable_version_counter: False
 tuner:
-  enable_tuner: True
+  enable_tuner: False
   lr_finder:
     min_lr: 0.00000001
     max_lr: 1

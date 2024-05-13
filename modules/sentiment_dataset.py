@@ -9,6 +9,8 @@ class SentimentDataset(Dataset):
         self.labels = self.data['labels']
         self.config = tokenizer_config
         self.tokenizer = object_from_dict(self.config.tokenizer_loader)
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
         
     def __len__(self):
         return len(self.data)

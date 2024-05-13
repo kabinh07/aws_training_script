@@ -23,26 +23,30 @@ class SentimentModel(L.LightningModule):
     
     def setup(self, stage = 0):
         self.data = pd.read_csv(**self.data_process_config.dataset)
-        #small version; remove df from line 28 and chnage df with self.data in line 30 nad 32
-        # df = self.data[:50]
+        #small version; remove df from line 27 and chnage df with self.data in line 29 nad 31
+        df = self.data[:50]
         trainset, validset = train_test_split(
-            self.data,
+            df,
             **self.data_process_config.splitter, 
-            stratify= self.data['labels']
+            stratify= df['labels']
             )
-        self.train_data = trainset.reset_index(drop = True)
-        self.valid_data = validset.reset_index(drop = True)
+        trainset.reset_index(drop = True, inplace = True)
+        validset.reset_index(drop = True, inplace = True)
+        self.train_data = SentimentDataset(trainset, self.tokenizer_config)
+        self.valid_data = SentimentDataset(validset, self.tokenizer_config)
+        if self.model.config.pad_token_id is None:
+            self.model.config.pad_token_id = self.train_data.tokenizer.pad_token_id
 
     def train_dataloader(self):
         train_loader = DataLoader(
-            SentimentDataset(self.train_data, self.tokenizer_config),
+            self.train_data,
             **self.data_loaders_config.trainloader
             )
         return train_loader
     
     def val_dataloader(self):
         valid_loader = DataLoader(
-            SentimentDataset(self.valid_data, self.tokenizer_config),
+            self.valid_data,
             **self.data_loaders_config.validloader
             )
         return valid_loader
